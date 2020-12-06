@@ -1,6 +1,6 @@
 import pandas as pd
 import math
-from ddbb import list_databases,database
+from helpers.ddbb import list_databases,database
 
 class data():
     """Generic Data class created in order to deal with the different kinds of Data Objects required for the project."""
