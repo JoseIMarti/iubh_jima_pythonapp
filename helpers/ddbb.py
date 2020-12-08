@@ -9,9 +9,10 @@ Base = declarative_base()
 class database():
     def __init__(self, ddbb_path = '', dbname = 'ppython.db', echo = True):
         self.dbname = dbname
-        self.ddbb_path = '////'+ddbb_path+'/'+dbname
+        self.ddbb_path = '//'+ddbb_path+'/'+dbname
         self.url = 'sqlite:'+self.ddbb_path
         self.engine = create_engine(self.url, echo = echo)
+        print(self.engine)
         
     def recreate_ddbb(self,ddbb_path,engine):
         if Path(ddbb_path).exists():
