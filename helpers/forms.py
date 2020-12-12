@@ -41,7 +41,7 @@ class MainWindow(QMainWindow):
         self.l_input_ddbb = QLabel(self)
         self.l_input_ddbb.setText("Choose among available DDBBs")
         self.input_ddbb = QComboBox(self)
-        self.input_ddbb.activated[str].connect(self.sel_ddbb)
+        #self.input_ddbb.activated[str].connect(self.sel_ddbb)
         
         
         self.l_input_ideal = QLabel(self)
@@ -166,6 +166,7 @@ class MainWindow(QMainWindow):
                 self.input_ddbb.clear()
                 self.input_ddbb.addItems(self.ddbb_dir_list)
                 self.input_ddbb.setCurrentIndex(self.input_ddbb.count() - 1 )
+                #jima 08_12_2020
                 self.ddbb_object = database(str(self.input_dir.text()),str(self.input_ddbb.currentText()))
                 self.ddbb = self.ddbb_object.recreate_ddbb(self.ddbb_object.ddbb_path,self.ddbb_object.engine)
                 QMessageBox.information(self,"Information","New database "+str(dialog.ddbb_full_name)+ " has been created")
@@ -178,6 +179,7 @@ class MainWindow(QMainWindow):
     
     def sel_ddbb(self):
         print("Hi database selection")
+        #jima 8_12_2020
         self.ddbb_object = database(str(self.input_dir.text()),str(self.input_ddbb.currentText()))
         print("Bye database selection")
         #print(self.input_ddbb.currentText())
