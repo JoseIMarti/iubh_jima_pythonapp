@@ -4,15 +4,13 @@ from helpers.ddbb import list_databases,database
 from helpers.data import data,ideal,model,test
 from helpers.bokeh_plot import bokeh_plot
 
-import sys
-import pandas as pd
+#import sys
+#import pandas as pd
 from PyQt5.QtCore import QDir,QUrl
 from PyQt5.QtWidgets import QDialog,QWidget,QFormLayout,QHBoxLayout,QVBoxLayout
-from PyQt5.QtWidgets import QMainWindow, QPushButton,QLineEdit, QFileDialog, QRadioButton
-from PyQt5.QtWidgets import QComboBox,QMessageBox,QGridLayout,QLabel
+from PyQt5.QtWidgets import QMainWindow,QDesktopWidget, QPushButton,QLineEdit, QFileDialog, QRadioButton
+from PyQt5.QtWidgets import QComboBox,QMessageBox,QLabel
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-
-from PyQt5.QtWidgets import QDesktopWidget
 
 class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
@@ -41,7 +39,7 @@ class MainWindow(QMainWindow):
         self.l_input_ddbb = QLabel(self)
         self.l_input_ddbb.setText("Choose among available DDBBs")
         self.input_ddbb = QComboBox(self)
-        #self.input_ddbb.activated[str].connect(self.sel_ddbb)
+        self.input_ddbb.activated[str].connect(self.sel_ddbb)
         
         
         self.l_input_ideal = QLabel(self)
@@ -133,8 +131,8 @@ class MainWindow(QMainWindow):
         
         self.window.setLayout(self.applicationLayout)
                 
-        #sizeScreen = QDesktopWidget().screenGeometry(-1)
-        #self.window.setFixedSize(sizeScreen.width()*0.9, sizeScreen.height()*0.9)
+        sizeScreen = QDesktopWidget().screenGeometry(-1)
+        self.window.setFixedSize(sizeScreen.width()*0.9, sizeScreen.height()*0.9)
         self.window.show()
     
     def choose_dir(self,object_text,mode="file"):
@@ -160,7 +158,6 @@ class MainWindow(QMainWindow):
     def show_dialog(self):
         if self.input_dir.text():
             dialog = Dialog(self)
-            temp_engine = ""
             if str(dialog.ddbb_full_name) != "" and self.ddbb_dir_list.count(str(dialog.ddbb_full_name)) == 0:
                 self.ddbb_dir_list.append(str(dialog.ddbb_full_name))
                 self.input_ddbb.clear()
@@ -173,16 +170,13 @@ class MainWindow(QMainWindow):
                 return True
             else:
                 QMessageBox.warning(self, "Warning","You cannot create duplicate DDBBs")
+                return False
         else:
             QMessageBox.warning(self, "Warning","You need to choose a DDBB working directory")
         return False
     
     def sel_ddbb(self):
-        print("Hi database selection")
-        #jima 8_12_2020
         self.ddbb_object = database(str(self.input_dir.text()),str(self.input_ddbb.currentText()))
-        print("Bye database selection")
-        #print(self.input_ddbb.currentText())
         
     def pd_ideal(self,object,type_df=''):
         if object.text():

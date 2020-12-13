@@ -1,5 +1,4 @@
-from sqlalchemy import create_engine, ForeignKey
-from sqlalchemy import Column, Date, Integer, String
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from pathlib import Path
 import pandas as pd
