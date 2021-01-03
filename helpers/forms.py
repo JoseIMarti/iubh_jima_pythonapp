@@ -18,14 +18,14 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Python Programming Assignment")
         self.window=QWidget()
         self.filename="ideal.html"
-        self.ddbb_dir_list = []
-        self.ddbb_object = []
-        self.engine = []
-        self.ddbb = []
+        self.ddbb_dir_list = None
+        self.ddbb_object = None
+        self.engine = None
+        self.ddbb = None
         
-        self.plotdata = []
-        self.ideal_data = []
-        self.model_data = []
+        self.plotdata = None
+        self.ideal_data = None
+        self.model_data = None
         
         self.l_input_dir=QLabel(self)
         self.l_input_dir.setText("Select DDBB working directory")
@@ -182,43 +182,37 @@ class MainWindow(QMainWindow):
         if object.text():
             df_object = data(object.text(),type_df)
             if(type_df != df_object.type_df):
-                QMessageBox.warning(self, "Warning","Check your csv choice. The number of columns doesn't match with the expected lenght for this kind of data. Data will still be available")
+                QMessageBox.warning(self, "Warning","Check your csv choice. The number of columns doesn't match with the expected length for this kind of data.")
             else:
                 if df_object.data_type_valid:
                     #Escribir un try/catch para escritura en base de datos, seguramente en ddbb.py
-                    self.ddbb_object.load_to_ddbb(df_object.df,df_object.type_df,self.ddbb_object.engine)
-                    self.filename=str(type_df)+".html"
-                    datafromquery = self.ddbb_object.read_from_ddbb(query="SELECT * FROM " + df_object.type_df,con = self.ddbb_object.engine)
+
                     if type_df in ['ideal','train']:
+                        self.ddbb_object.load_to_ddbb(df_object.df,df_object.type_df,self.ddbb_object.engine)
+                        self.filename=str(type_df)+".html"
+                        datafromquery = self.ddbb_object.read_from_ddbb(query="SELECT * FROM " + df_object.type_df,con = self.ddbb_object.engine)
+                    
                         if type_df == 'ideal':
                             bokeh_plot(datafromquery)
                             self.ideal_data = ideal(object.text(),type_df)
                             self.radiobutton_ideal.setChecked(True)
                         else:
+                            print(datafromquery)
                             bokeh_plot(datafromquery,2,self.filename)
                             self.model_data = model(object.text(),type_df)
                             self.radiobutton_train.setChecked(True)
                     else:
-                            if self.model_data != [] and self.ideal_data != []:
+                            if self.model_data != None and self.ideal_data != None:
                                 print("READY")
                                 output_model = self.model_data.lestSquareCriterion(self.ideal_data.df)
-                                #print(output_model['df'].columns)
-                                self.test_data = test(object.text(),type_df)
-                                self.test_data.maxDeviationCriterion(output_model)
                                 
-                                prueba = self.test_data.lestSquareCriterion(output_model['df'])
-                                #print((prueba))
-                                #print(prueba)
-                                #prueba = self.test_data.lestSquareCriterion(self.ideal_data)
-                                #for model_df in output_model['ideal_cols']:
-                                #    prueba = self.test_data.lestSquareCriterion(model_df)
-                                    #print(prueba)
-                                #print(prueba)
+                                self.test_data = test(object.text(),type_df)
+                                self.test_data.maxDeviationCriterion(output_model,self.ddbb_object)
                                 
                             else:
                                 print("Load files")
                             
-                            bokeh_plot(datafromquery,1,self.filename)
+                            #bokeh_plot(datafromquery,1,self.filename)
                             
                             self.test_data = df_object
                             self.radiobutton_test.setChecked(True)
@@ -243,7 +237,7 @@ class MainWindow(QMainWindow):
 class Dialog(QDialog):
     def __init__(self, *args, **kwargs):
         super(Dialog, self).__init__(*args, **kwargs)
-        self.ddbb_full_name = ""
+        self.ddbb_full_name = None
         self.setWindowTitle("Creating New Database")
         self.setFixedSize(400, 200)
         

@@ -13,10 +13,10 @@ class database():
         self.engine = create_engine(self.url, echo = echo)
         print(self.engine)
         
-    def recreate_ddbb(self,ddbb_path,engine):
-        if Path(ddbb_path).exists():
-            Base.metadata.drop_all(engine)
-        Base.metadata.create_all(engine)
+    def recreate_ddbb(self):
+        if Path(self.ddbb_path).exists():
+            Base.metadata.drop_all(self.engine)
+        Base.metadata.create_all(self.engine)
         return True
         
     def load_to_ddbb(self,df,table_name,engine,if_exists='replace',index=False,chunksize=400):
