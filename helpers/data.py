@@ -108,8 +108,11 @@ class test(model):
     def addElements(self,df,list):
         return df.append({df.columns[0]:list[0],df.columns[1]:list[1]},ignore_index=True)
     
+    def addResults(self,df,list):
+        return df.append({df.columns[0]:list[0],df.columns[1]:list[1],df.columns[2]:list[2],df.columns[3]:list[3]},ignore_index=True)
+    
     def maxDeviationCriterion(self,model,ddbb_object):
-        
+        df_result = pd.DataFrame(data=None,columns=['x','y','delta','ideal_func'])
         df_model_collection = model['df']
         dev_model_collection = model['deviation']
         
@@ -131,7 +134,10 @@ class test(model):
                         
                         if temp_self_df['abs_diff'+str(temp_index)][0] <= dev_model_collection[temp_index]:
                             print("New entry in Database")
-                            print(temp_self_df)
+                            #print(temp_self_df)
+                            #print("x: "+ str(temp_self_df[temp_self_df.columns[0]][0])+" ,y: " + str(temp_self_df[temp_self_df.columns[1]][0]) + ", "+str(temp_self_df.columns[int(2+temp_index)])  +" ,delta: "+str(temp_self_df['abs_diff'+str(temp_index)][0]))
+                            results_row=[temp_self_df[temp_self_df.columns[0]][0],temp_self_df[temp_self_df.columns[1]][0],temp_self_df['abs_diff'+str(temp_index)][0],temp_self_df.columns[int(2+temp_index)]]
+                            print(results_row)
                             #print("x: "+ str(row[0]))
                             #print("x: "+ str(row[0])+" ,y: " + str(row[1]) +" ,dev_model: "+str(dev_model_collection[i]) +" ,delta: "+str(row[3]) +" ,col: " + str(model_df.columns[1]))
                             
