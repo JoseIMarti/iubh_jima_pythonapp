@@ -111,7 +111,7 @@ class test(model):
     def addResults(self,df,list):
         return df.append({df.columns[0]:list[0],df.columns[1]:list[1],df.columns[2]:list[2],df.columns[3]:list[3]},ignore_index=True)
     
-    def maxDeviationCriterion(self,model,ddbb_object):
+    def maxDeviationCriterion(self,model):
         df_result = pd.DataFrame(data=None,columns=['x','y','delta','ideal_func'])
         df_model_collection = model['df']
         dev_model_collection = model['deviation']
@@ -123,46 +123,19 @@ class test(model):
                 if index > 0:
                     df =  pd.DataFrame(columns = self.df.columns) 
                     df = self.addElements(df,test_row)
+                    
                     for column in df.columns:
                         df[column] = df[column].astype(float)    
                     
                     temp_self_df = df.merge(df_model_collection,how='left',left_on=df.columns[0],right_on=df_model_collection.columns[0])
                     start = -len(df_model_collection.columns)+1
                     end = len(temp_self_df.columns)
+                    
                     for temp_index,temp_column in enumerate(temp_self_df.columns[start:end]):
-                        temp_self_df['abs_diff'+str(temp_index)] = abs(temp_self_df.iloc[:,1]-temp_self_df.iloc[:,int(2+temp_index)])
-                        
+                        temp_self_df['abs_diff'+str(temp_index)] = abs(temp_self_df.iloc[:,1]-temp_self_df.iloc[:,int(2+temp_index)]) 
+                        temp_self_df['diff'+str(temp_index)] = (temp_self_df.iloc[:,1]-temp_self_df.iloc[:,int(2+temp_index)]) 
                         if temp_self_df['abs_diff'+str(temp_index)][0] <= dev_model_collection[temp_index]:
-                            print("New entry in Database")
-                            #print(temp_self_df)
-                            #print("x: "+ str(temp_self_df[temp_self_df.columns[0]][0])+" ,y: " + str(temp_self_df[temp_self_df.columns[1]][0]) + ", "+str(temp_self_df.columns[int(2+temp_index)])  +" ,delta: "+str(temp_self_df['abs_diff'+str(temp_index)][0]))
-                            results_row=[temp_self_df[temp_self_df.columns[0]][0],temp_self_df[temp_self_df.columns[1]][0],temp_self_df['abs_diff'+str(temp_index)][0],temp_self_df.columns[int(2+temp_index)]]
-                            print(results_row)
-                            #print("x: "+ str(row[0]))
-                            #print("x: "+ str(row[0])+" ,y: " + str(row[1]) +" ,dev_model: "+str(dev_model_collection[i]) +" ,delta: "+str(row[3]) +" ,col: " + str(model_df.columns[1]))
-                            
-                        
-        
-        
+                            results_row=[temp_self_df[temp_self_df.columns[0]][0],temp_self_df[temp_self_df.columns[1]][0],temp_self_df['diff'+str(temp_index)][0],temp_self_df.columns[int(2+temp_index)]]
+                            df_result = self.addResults(df_result,results_row)
 
-
-                    #print("Index: "+str(index))
-                    #print(df)
-                    #df_model_collection = model['ideal_cols']
-                    #dev_model_collection = model['deviation']
-            
-                    #for model_index, model_df in enumerate(df_model_collection):
-                    #    print("Modelo")
-                        #print(model_df)
-                        #model_df = pd.DataFrame(model_df)
-                        #temp_self_df = df.merge(model_df,how='left',left_on=df.columns[0],right_on=model_df.columns[0])
-                    #temp_self_df = temp_self_df.dropna()
-                    #temp_self_df['abs_diff'] = abs(temp_self_df.iloc[:,1]-temp_self_df.iloc[:,2])
-        
-                    #for j, row in temp_self_df.iterrows():
-        
-                    #    if row['abs_diff'] <= dev_model_collection[i]:
-                    #        print("Write into database")
-                    #        print(row)
-                    #        print("x: "+ str(row[0])+" ,y: " + str(row[1]) +" ,dev_model: "+str(dev_model_collection[i]) +" ,delta: "+str(row[3]) +" ,col: " + str(model_df.columns[1]))
-                            
+        return df_result

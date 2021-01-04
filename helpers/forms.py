@@ -186,10 +186,10 @@ class MainWindow(QMainWindow):
             else:
                 if df_object.data_type_valid:
                     #Escribir un try/catch para escritura en base de datos, seguramente en ddbb.py
-
+                    self.filename=str(type_df)+".html"
                     if type_df in ['ideal','train']:
                         self.ddbb_object.load_to_ddbb(df_object.df,df_object.type_df,self.ddbb_object.engine)
-                        self.filename=str(type_df)+".html"
+                        
                         datafromquery = self.ddbb_object.read_from_ddbb(query="SELECT * FROM " + df_object.type_df,con = self.ddbb_object.engine)
                     
                         if type_df == 'ideal':
@@ -207,12 +207,15 @@ class MainWindow(QMainWindow):
                                 output_model = self.model_data.lestSquareCriterion(self.ideal_data.df)
                                 
                                 self.test_data = test(object.text(),type_df)
-                                self.test_data.maxDeviationCriterion(output_model,self.ddbb_object)
-                                
+                                test_output = self.test_data.maxDeviationCriterion(output_model)
+                                self.ddbb_object.load_to_ddbb(test_output,df_object.type_df,self.ddbb_object.engine)
                             else:
                                 print("Load files")
                             
-                            #bokeh_plot(datafromquery,1,self.filename)
+                            datafromquery = self.ddbb_object.read_from_ddbb(query="SELECT * FROM " + df_object.type_df +" ORDER BY ideal_func ASC,x ASC",con = self.ddbb_object.engine)
+                            
+                            pivoted = datafromquery.pivot(index="x", columns="ideal_func")
+                            bokeh_plot(pivoted["y"],2,self.filename,type_df=type_df,delta=pivoted["delta"])
                             
                             self.test_data = df_object
                             self.radiobutton_test.setChecked(True)
