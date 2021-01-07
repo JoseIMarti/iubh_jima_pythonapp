@@ -202,6 +202,7 @@ class MainWindow(QMainWindow):
                             self.model_data = model(object.text(),type_df)
                             self.radiobutton_train.setChecked(True)
                     else:
+                            output_model = None
                             if self.model_data != None and self.ideal_data != None:
                                 print("READY")
                                 output_model = self.model_data.lestSquareCriterion(self.ideal_data.df)
@@ -215,7 +216,7 @@ class MainWindow(QMainWindow):
                             datafromquery = self.ddbb_object.read_from_ddbb(query="SELECT * FROM " + df_object.type_df +" ORDER BY ideal_func ASC,x ASC",con = self.ddbb_object.engine)
                             
                             pivoted = datafromquery.pivot(index="x", columns="ideal_func")
-                            bokeh_plot(pivoted["y"],2,self.filename,type_df=type_df,delta=pivoted["delta"])
+                            bokeh_plot(pivoted["y"],2,self.filename,type_df=type_df,delta=pivoted["delta"],output_model=output_model)
                             
                             self.test_data = df_object
                             self.radiobutton_test.setChecked(True)
