@@ -6,8 +6,9 @@ from helpers.bokeh_plot import bokeh_plot
 
 #import sys
 #import pandas as pd
+from PyQt5 import QtGui,QtCore
 from PyQt5.QtCore import QDir,QUrl
-from PyQt5.QtWidgets import QDialog,QWidget,QFormLayout,QHBoxLayout,QVBoxLayout
+from PyQt5.QtWidgets import QDialog,QWidget,QFormLayout,QHBoxLayout,QVBoxLayout,QFrame,QTabWidget
 from PyQt5.QtWidgets import QMainWindow,QDesktopWidget, QPushButton,QLineEdit, QFileDialog, QRadioButton
 from PyQt5.QtWidgets import QComboBox,QMessageBox,QLabel
 from PyQt5.QtWebEngineWidgets import QWebEngineView
@@ -15,6 +16,7 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
+        self._is_collasped = True
         self.setWindowTitle("Python Programming Assignment")
         self.window=QWidget()
         self.filename="ideal.html"
@@ -70,12 +72,18 @@ class MainWindow(QMainWindow):
         self.plotdata.resize(1040, 780)
 
         
-        self.applicationLayout = QVBoxLayout(self)
-        directoryLayout = QHBoxLayout()
-        databaseLayout = QHBoxLayout()
-        idealdataLayout = QHBoxLayout()
-        traindataLayout = QHBoxLayout()
-        testdataLayout = QHBoxLayout()
+        self.applicationLayout = QHBoxLayout(self)
+        self.formlayout_widget = QWidget()
+        self.formlayout = QVBoxLayout()
+        self.formlayout.addWidget(self.formlayout_widget)
+        self.collapse = QPushButton(self,text="Configure")
+        self.collapse.clicked.connect(lambda: self.toggleCollapsed())
+        
+        self.directoryLayout = QHBoxLayout()
+        self.databaseLayout = QHBoxLayout()
+        self.idealdataLayout = QHBoxLayout()
+        self.traindataLayout = QHBoxLayout()
+        self.testdataLayout = QHBoxLayout()
         plotLayout = QHBoxLayout()
         radioBLayout = QVBoxLayout()
         
@@ -95,44 +103,51 @@ class MainWindow(QMainWindow):
         self.radiobutton_test.toggled.connect(self.onClicked)
         radioBLayout.addWidget(self.radiobutton_test)
         
-        directoryLayout.addWidget(self.l_input_dir)
-        directoryLayout.addWidget(self.input_dir)
-        directoryLayout.addWidget(self.button_dir)
+        self.directoryLayout.addWidget(self.l_input_dir)
+        self.directoryLayout.addWidget(self.input_dir)
+        self.directoryLayout.addWidget(self.button_dir)
         
-        databaseLayout.addWidget(self.button_dialog)
-        databaseLayout.addWidget(self.l_input_ddbb)
-        databaseLayout.addWidget(self.input_ddbb)
+        self.databaseLayout.addWidget(self.button_dialog)
+        self.databaseLayout.addWidget(self.l_input_ddbb)
+        self.databaseLayout.addWidget(self.input_ddbb)
         
-        idealdataLayout.addWidget(self.l_input_ideal)
-        idealdataLayout.addWidget(self.input_ideal)
-        idealdataLayout.addWidget(self.button_ideal)
+        self.idealdataLayout.addWidget(self.l_input_ideal)
+        self.idealdataLayout.addWidget(self.input_ideal)
+        self.idealdataLayout.addWidget(self.button_ideal)
         
-        traindataLayout.addWidget(self.l_input_train)
-        traindataLayout.addWidget(self.input_train)
-        traindataLayout.addWidget(self.button_train)
+        self.traindataLayout.addWidget(self.l_input_train)
+        self.traindataLayout.addWidget(self.input_train)
+        self.traindataLayout.addWidget(self.button_train)
         
-        testdataLayout.addWidget(self.l_input_test)
-        testdataLayout.addWidget(self.input_test)
-        testdataLayout.addWidget(self.button_test)
+        self.testdataLayout.addWidget(self.l_input_test)
+        self.testdataLayout.addWidget(self.input_test)
+        self.testdataLayout.addWidget(self.button_test)
         
         plotLayout.setContentsMargins(0, 0, 0, 0)
         radioBLayout.addStretch(0)
         plotLayout.addLayout(radioBLayout)
         
-        self.applicationLayout.addLayout(directoryLayout)
-        self.applicationLayout.addLayout(databaseLayout)
-        self.applicationLayout.addLayout(idealdataLayout)
-        self.applicationLayout.addLayout(traindataLayout)
-        self.applicationLayout.addLayout(testdataLayout)
-        self.applicationLayout.addLayout(plotLayout)
-        self.applicationLayout.addStretch(1)
-        self.applicationLayout.addWidget(self.plotdata)
-        self.applicationLayout.addStretch(0)
+        tabs = QTabWidget()
+        tabs.addTab(WebPage("ideal.html"), "IDEAL")
+        tabs.addTab(WebPage("train.html"), "TRAIN")
+        tabs.addTab(WebPage("test.html"), "TEST")
+        
+        
+        
+        #self.applicationLayout.addWidget(self.collapse)
+        self.applicationLayout.addWidget(tabs)
+        self.applicationLayout.addWidget(self.collapse)
+        
+        #self.applicationLayout.addStretch(1)
+        #self.applicationLayout.addWidget(self.plotdata)
+        #self.applicationLayout.addStretch(0)
+        self.applicationLayout.addLayout(self.formlayout)
         
         self.window.setLayout(self.applicationLayout)
                 
         sizeScreen = QDesktopWidget().screenGeometry(-1)
-        self.window.setFixedSize(sizeScreen.width()*0.9, sizeScreen.height()*0.9)
+        self.window.setFixedSize(sizeScreen.width(), sizeScreen.height())
+        #tabs.setFixedSize(sizeScreen.width()*0.9*0.75, sizeScreen.height())
         self.window.show()
     
     def choose_dir(self,object_text,mode="file"):
@@ -157,7 +172,7 @@ class MainWindow(QMainWindow):
     
     def show_dialog(self):
         if self.input_dir.text():
-            dialog = Dialog(self)
+            dialog = NewDDBB(self)
             if str(dialog.ddbb_full_name) != "" and self.ddbb_dir_list.count(str(dialog.ddbb_full_name)) == 0:
                 self.ddbb_dir_list.append(str(dialog.ddbb_full_name))
                 self.input_ddbb.clear()
@@ -165,7 +180,7 @@ class MainWindow(QMainWindow):
                 self.input_ddbb.setCurrentIndex(self.input_ddbb.count() - 1 )
                 #jima 08_12_2020
                 self.ddbb_object = database(str(self.input_dir.text()),str(self.input_ddbb.currentText()))
-                self.ddbb = self.ddbb_object.recreate_ddbb(self.ddbb_object.ddbb_path,self.ddbb_object.engine)
+                #self.ddbb = self.ddbb_object.recreate_ddbb(self.ddbb_object.ddbb_path,self.ddbb_object.engine)
                 QMessageBox.information(self,"Information","New database "+str(dialog.ddbb_full_name)+ " has been created")
                 return True
             else:
@@ -187,6 +202,7 @@ class MainWindow(QMainWindow):
                 if df_object.data_type_valid:
                     #Escribir un try/catch para escritura en base de datos, seguramente en ddbb.py
                     self.filename=str(type_df)+".html"
+                    print(self.filename)
                     if type_df in ['ideal','train']:
                         self.ddbb_object.load_to_ddbb(df_object.df,df_object.type_df,self.ddbb_object.engine)
                         
@@ -237,10 +253,50 @@ class MainWindow(QMainWindow):
             self.plotdata.load_new_chart(self.filename)
             print("Option is %s" % (radioButton.option_choice))
 
+    def toggleCollapsed(self):
+        Configuration(self)
+        #self._is_collasped = not self._is_collasped
+        #if self._is_collasped == False:
+        #    self.formlayout_widget.hide()
+        #    NewDDBB(self)
+        #else:
+        #    self.formlayout_widget.show()
+            
+class Configuration(QDialog):
+    def __init__(self, parent,*args, **kwargs):
+        super(Configuration, self).__init__(parent,*args, **kwargs)
+        
 
-class Dialog(QDialog):
+        self.formLayout = QVBoxLayout(self)
+
+        self.formLayout.addLayout(parent.directoryLayout)
+        self.formLayout.addLayout(parent.databaseLayout)
+        self.formLayout.addLayout(parent.idealdataLayout)
+        self.formLayout.addLayout(parent.traindataLayout)
+        self.formLayout.addLayout(parent.testdataLayout)
+        
+        self.bttn_save= QPushButton("Save")
+        self.bttn_save.clicked.connect(self.onSave)
+        self.bttn_cancel= QPushButton("Cancel")
+        self.bttn_cancel.clicked.connect(self.onCancel)
+        #self.formLayout.addRow(self.bttn_save,self.bttn_cancel)
+        self.setLayout(self.formLayout)
+        self.exec_()
+        
+    def onSave(self):
+        print("SAVE CONFIGURATION")
+
+    def onCancel(self):
+        print("EXIT")
+            
+            
+            
+            
+            
+            
+class NewDDBB(QDialog):
     def __init__(self, *args, **kwargs):
-        super(Dialog, self).__init__(*args, **kwargs)
+        super(NewDDBB, self).__init__(*args, **kwargs)
         self.ddbb_full_name = None
         self.setWindowTitle("Creating New Database")
         self.setFixedSize(400, 200)
